@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+    <http:listener-config name="Server_HTTPS_Listener_Configuration_9095" protocol="HTTPS" host="localhost" port="9095" doc:name="HTTP Listener Configuration">
+        <tls:context>
+            <tls:key-store type="jks" path="server/serverKeyStore.jks" alias="selfsigned" keyPassword="password" password="password"/>
+        </tls:context>
+    </http:listener-config>
+    <http:listener-config name="Client_HTTP_Listener_Configuration_9085" host="localhost" port="9085" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" protocol="HTTPS" host="localhost" port="9095" doc:name="HTTP Request Configuration">
+        <tls:context>
+            <tls:trust-store path="server/serverTrustStore.jks" password="password" type="jks"/>
+        </tls:context>
+    </http:request-config>
+    <flow name="serverFlow">
+        <http:listener config-ref="Server_HTTPS_Listener_Configuration_9095" path="/server" allowedMethods="GET" doc:name="HTTP.Server Listner at 9095"/>
+        <set-payload value="#['Server: Received Request']" doc:name="Set Payload"/>
+    </flow>
+    <flow name="clientFlow">
+        <http:listener config-ref="Client_HTTP_Listener_Configuration_9085" path="/client" allowedMethods="GET" doc:name="HTTP.Client Lister at 9085"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/server" method="GET" doc:name="HTTP:Invoke server via HTTPS @9095"/>
+    </flow>
+</mule>
